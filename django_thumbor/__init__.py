@@ -3,6 +3,7 @@
 from libthumbor import CryptoURL
 from django_thumbor import conf
 from django.conf import settings
+from urllib.parse import quote
 import logging
 logger = logging.getLogger(__name__)
 
@@ -50,12 +51,20 @@ def _handle_url_field(url):
         return getattr(url, "url", "")
     return url
 
+
+def _escape_url(url):
+    # that could be a setting
+    # TODO ask project owner, complete and add tests
+    return quote(url)
+
+
 def generate_url(image_url, alias=None, **kwargs):
     image_url = _handle_empty(image_url)
     image_url = _handle_url_field(image_url)
     image_url = _prepend_media_url(image_url)
     image_url = _prepend_static_url(image_url)
     image_url = _remove_schema(image_url)
+    image_url = _escape_url(image_url)
 
     if alias:
         if alias not in conf.THUMBOR_ALIASES:
